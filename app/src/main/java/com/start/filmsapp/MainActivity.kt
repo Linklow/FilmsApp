@@ -2,9 +2,13 @@ package com.start.filmsapp
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.start.filmsapp.databinding.ActivityMainBinding
 import com.start.filmsapp.model.Film
 import com.start.filmsapp.model.FilmResponse
 import com.start.filmsapp.services.FilmApiInterface
@@ -17,6 +21,8 @@ import retrofit2.Response
 class MainActivity : AppCompatActivity() {
 
     private val viewModel: MainViewModel by viewModels()
+    private lateinit var recyclerAdapter: FilmAdapter
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -24,26 +30,31 @@ class MainActivity : AppCompatActivity() {
             setKeepOnScreenCondition{
                 viewModel.isLoading.value}
         }
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        val view = binding.root
+        setContentView(view)
 
-        rv_films_list.layoutManager = LinearLayoutManager(this)
-        rv_films_list.setHasFixedSize(true)
-        getFilmData { films: List<Film> ->
-            rv_films_list.adapter = FilmAdapter(films)
-        }
+        initRecyclerView()
+        initViewModel()
     }
 
-    private fun getFilmData(callback: (List<Film>) -> Unit){
-        val apiService = FilmApiService.getInstance().create(FilmApiInterface::class.java)
-        apiService.getFilmList().enqueue(object: Callback<FilmResponse> {
-            override fun onResponse(call: Call<FilmResponse>, response: Response<FilmResponse>) {
-                return callback(response.body()!!.films)
+    private fun initRecyclerView() {
+        binding.rvFilmsList.layoutManager = LinearLayoutManager(this)
+        recyclerAdapter = FilmAdapter(this)
+        binding.rvFilmsList.adapter = recyclerAdapter
+
+    }
+
+    private fun initViewModel() {
+        val viewModel = ViewModelProvider(this).get(MainViewModel::class.java)
+        viewModel.getLiveDataObserver().observe(this) {
+            if (it != null) {
+                recyclerAdapter.setFilmList(it)
+                recyclerAdapter.notifyDataSetChanged()
+            } else {
+                Toast.makeText(this, "Error in getting list", Toast.LENGTH_SHORT).show()
             }
-
-            override fun onFailure(call: Call<FilmResponse>, t: Throwable) {
-
-            }
-
-        })
+        }
+        viewModel.makeAPICall()
     }
 }

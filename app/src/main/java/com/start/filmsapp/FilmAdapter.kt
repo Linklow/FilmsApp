@@ -1,5 +1,6 @@
 package com.start.filmsapp
 
+import android.app.Activity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,7 +9,14 @@ import com.bumptech.glide.Glide
 import com.start.filmsapp.model.Film
 import kotlinx.android.synthetic.main.film_item.view.*
 
-class FilmAdapter(private val films: List<Film>): RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
+class FilmAdapter(val activity: Activity): RecyclerView.Adapter<FilmAdapter.FilmViewHolder>() {
+
+
+    private var films: List<Film>? = null
+
+    fun setFilmList(films: List<Film>?) {
+        this.films = films
+    }
 
     class FilmViewHolder(view: View): RecyclerView.ViewHolder(view){
         fun bindFilm(film: Film){
@@ -25,8 +33,12 @@ class FilmAdapter(private val films: List<Film>): RecyclerView.Adapter<FilmAdapt
     }
 
     override fun onBindViewHolder(holder: FilmViewHolder, position: Int) {
-        holder.bindFilm(films.get(position))
+        holder.bindFilm(films!!.get(position))
     }
 
-    override fun getItemCount(): Int = films.size
+    override fun getItemCount(): Int {
+        return if (films != null)
+            films!!.size
+        else 0
+    }
 }

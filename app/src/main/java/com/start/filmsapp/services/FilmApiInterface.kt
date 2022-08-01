@@ -9,4 +9,3 @@ interface FilmApiInterface {
     @GET("/svc/movies/v2/reviews/search.json?api-key=PgZdZUfhxAGgggEEjGwHFuXaAzGLZozl")
     fun getFilmList(): Call<FilmResponse>
 }
-// https://api.nytimes.com/svc/movies/v2/reviews/search.json?api-key=PgZdZUfhxAGgggEEjGwHFuXaAzGLZozl
