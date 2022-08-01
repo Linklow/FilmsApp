@@ -28,6 +28,8 @@ class MainViewModel: ViewModel() {
     init {
         liveDataList = MutableLiveData()
         viewModelScope.launch {
+            getLiveDataObserver()
+            makeAPICall()
             delay(2000)
             _isLoading.value = false
         }
